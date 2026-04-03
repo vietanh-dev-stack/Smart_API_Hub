@@ -1,0 +1,16 @@
+{
+  "users": [
+    {
+      "email": "admin@gmail.com",
+      "password": "123456",
+      "role": "admin"
+    }
+  ],
+  "posts": [
+    {
+      "title": "Hello",
+      "content": "World",
+      "user_id": 1
+    }
+  ]
+}
