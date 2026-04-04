@@ -15,18 +15,16 @@ export async function runMigration() {
       const sample = schema[tableName][0];
 
       await db.schema.createTable(tableName, (table) => {
-        table.increments('id');
-
+        table.increments('id'); // Tự động tạo cột id auto-increment
         Object.entries(sample).forEach(([col, val]) => {
+          if (col === 'id') return;
+          // Suy đoán kiểu dữ liệu từ giá trị mẫu
           if (typeof val === 'number') table.integer(col);
-          else table.text(col);
+          else if (typeof val === 'boolean') table.boolean(col);
+          else table.text(col); // Mặc định là text
         });
-
-        table.timestamp('created_at').defaultTo(db.fn.now());
-        table.timestamp('updated_at').defaultTo(db.fn.now());
       });
-
-      console.log(`Created table ${tableName}`);
+      console.log(`✅ Đã tạo bảng "${tableName}"`);
     }
   }
 }

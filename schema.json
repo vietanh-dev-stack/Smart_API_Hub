@@ -6,11 +6,24 @@
       "role": "admin"
     }
   ],
-  "posts": [
+  "categories": [
     {
-      "title": "Hello",
-      "content": "World",
-      "user_id": 1
+      "name": "Electronics"
+    }
+  ],
+  "products": [
+    {
+      "name": "Laptop",
+      "price": 1500,
+      "stock": 10,
+      "category_id": 1
+    }
+  ],
+  "orders": [
+    {
+      "user_id": 1,
+      "product_id": 1,
+      "quantity": 2
     }
   ]
 }
