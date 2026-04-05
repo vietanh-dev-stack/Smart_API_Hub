@@ -8,7 +8,8 @@
   ],
   "categories": [
     {
-      "name": "Electronics"
+      "name": "Electronics",
+      "user_id": 1
     }
   ],
   "products": [
@@ -16,14 +17,8 @@
       "name": "Laptop",
       "price": 1500,
       "stock": 10,
-      "category_id": 1
-    }
-  ],
-  "orders": [
-    {
-      "user_id": 1,
-      "product_id": 1,
-      "quantity": 2
+      "category_id": 1,
+      "user_id": 1
     }
   ]
 }
