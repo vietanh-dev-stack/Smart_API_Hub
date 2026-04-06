@@ -22,7 +22,7 @@ export async function register(req: Request, res: Response) {
     .insert({
       email,
       password: hashed,
-      role: role || "admin",
+      role: role || "client",
       created_at: new Date(),
       updated_at: new Date(),
     })
