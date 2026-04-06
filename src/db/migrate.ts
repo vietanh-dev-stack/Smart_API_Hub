@@ -15,20 +15,68 @@ export async function runMigration() {
       const sample = schema[tableName][0];
 
       await db.schema.createTable(tableName, (table) => {
-        table.increments("id"); // Tự động tạo cột id auto-increment
+        table.increments("id");
+
         Object.entries(sample).forEach(([col, val]) => {
           if (col === "id") return;
-          // Suy đoán kiểu dữ liệu từ giá trị mẫu
+
           if (typeof val === "number") table.integer(col);
           else if (typeof val === "boolean") table.boolean(col);
-          else table.text(col); // Mặc định là text
+          else table.text(col);
         });
 
-        // Thêm timestamps
         table.timestamp("created_at").defaultTo(db.fn.now());
         table.timestamp("updated_at").defaultTo(db.fn.now());
       });
-      console.log(`✅ Đã tạo bảng "${tableName}"`);
+
+      console.log(`Đã tạo bảng "${tableName}"`);
     }
+  }
+
+  // --- Tạo foreign key ---
+  const tables = await db.raw(`
+    SELECT table_name 
+    FROM information_schema.tables 
+    WHERE table_schema='public';
+  `);
+
+  const tableNames = tables.rows.map((r: any) => r.table_name);
+
+  // categories.user_id -> users.id
+  if (tableNames.includes("categories") && tableNames.includes("users")) {
+    const hasFk = await db.schema.hasColumn("categories", "user_id");
+    if (hasFk) {
+      try {
+        await db.schema.alterTable("categories", (table) => {
+          table
+            .foreign("user_id")
+            .references("id")
+            .inTable("users")
+            .onDelete("SET NULL");
+        });
+        console.log("Tạo FK categories.user_id -> users.id");
+      } catch (err) {}
+    }
+  }
+
+  // products.category_id -> categories.id
+  // products.user_id -> users.id
+  if (tableNames.includes("products")) {
+    try {
+      await db.schema.alterTable("products", (table) => {
+        table
+          .foreign("category_id")
+          .references("id")
+          .inTable("categories")
+          .onDelete("SET NULL");
+        table
+          .foreign("user_id")
+          .references("id")
+          .inTable("users")
+          .onDelete("SET NULL");
+      });
+      console.log("Tạo FK products.category_id -> categories.id");
+      console.log("Tạo FK products.user_id -> users.id");
+    } catch (err) {}
   }
 }
