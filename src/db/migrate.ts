@@ -79,4 +79,16 @@ export async function runMigration() {
       console.log("Tạo FK products.user_id -> users.id");
     } catch (err) {}
   }
+
+  const hasFk = await db.schema.hasColumn("audit_logs", "user_id");
+  if (hasFk) {
+    await db.schema.alterTable("audit_logs", (table) => {
+      table
+        .foreign("user_id")
+        .references("id")
+        .inTable("users")
+        .onDelete("SET NULL");
+    });
+    console.log("Tạo FK audit_logs.user_id -> users.id");
+  }
 }
