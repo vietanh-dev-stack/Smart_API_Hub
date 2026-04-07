@@ -80,15 +80,28 @@ export async function runMigration() {
     } catch (err) {}
   }
 
-  const hasFk = await db.schema.hasColumn("audit_logs", "user_id");
-  if (hasFk) {
-    await db.schema.alterTable("audit_logs", (table) => {
-      table
-        .foreign("user_id")
-        .references("id")
-        .inTable("users")
-        .onDelete("SET NULL");
-    });
-    console.log("Tạo FK audit_logs.user_id -> users.id");
+  const hasAuditLogsTable = await db.schema.hasTable("audit_logs");
+  if (hasAuditLogsTable) {
+    const hasUserIdFk = await db
+      .raw(
+        `
+      SELECT constraint_name
+      FROM information_schema.table_constraints
+      WHERE table_name='audit_logs' AND constraint_type='FOREIGN KEY'
+        AND constraint_name='audit_logs_user_id_foreign';
+    `,
+      )
+      .then((res) => res.rows.length > 0);
+
+    if (!hasUserIdFk) {
+      await db.schema.alterTable("audit_logs", (table) => {
+        table
+          .foreign("user_id")
+          .references("id")
+          .inTable("users")
+          .onDelete("SET NULL");
+      });
+      console.log("Tạo FK audit_logs.user_id -> users.id");
+    }
   }
 }
