@@ -48,7 +48,7 @@ RUN npm i --omit=dev
  
 # 4. Chỉ Copy thư mục đã build (dist) từ Stage 1 sang Stage 2
 COPY --from=builder /app/dist ./dist
-COPY db.json .
+COPY --from=builder /app/schema.json ./schema.json
  
 # Bảo mật: Dùng user "node" có sẵn thay vì "root" (quyền cao nhất) để chạy app
 USER node
@@ -57,4 +57,4 @@ USER node
 EXPOSE 3000
  
 # 6. Khởi chạy ứng dụng bằng Node.js tiêu chuẩn
-CMD ["node", "dist/index.js"]
+CMD ["sh", "-c", "node dist/db/migrate.js && node dist/index.js"]

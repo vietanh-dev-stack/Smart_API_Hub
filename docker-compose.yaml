@@ -1,3 +1,4 @@
+version: '3.8'
 services:
   db:
     image: postgres:15
@@ -16,7 +17,9 @@ services:
       retries: 5
 
   app:
-    build: .
+    build:
+      context: .
+      target: production
     container_name: node_app
     ports:
       - "3000:3000"
