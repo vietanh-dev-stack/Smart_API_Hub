@@ -1,64 +1,76 @@
 # Smart Hub JSON Server
 
-**Smart Hub JSON Server** là một hệ thống backend tùy chỉnh mạnh mẽ được xây dựng bằng **Node.js**, **Express** và **PostgreSQL**. Dự án này cung cấp khả năng **Dynamic API** tương tự như JSON Server truyền thống nhưng được tối ưu hóa cho môi trường thực tế với cơ sở dữ liệu quan hệ, hỗ trợ phân quyền và truy vấn nâng cao.
+**Smart Hub JSON Server** là một hệ thống backend tùy chỉnh mạnh mẽ được xây dựng bằng **Node.js**, **Express** và **PostgreSQL**.
+
+Dự án cung cấp khả năng **Dynamic API** tương tự `json-server`, nhưng được nâng cấp để dùng trong môi trường thực tế với:
+
+* Database quan hệ (PostgreSQL)
+* Authentication & Authorization
+* Query nâng cao (filter, search, pagination)
+* Auto-migration từ `schema.json`
 
 ---
 
 ## Mục lục
-1. [Công nghệ sử dụng](#-công-nghệ-sử-dụng)
-2. [Cấu trúc Project](#-cấu-trúc-project)
-3. [Cài đặt & Khởi chạy](#-cài-đặt--khởi-chạy)
-4. [Database & Migration](#-database--migration)
-5. [Hệ thống API](#-hệ-thống-api)
-6. [Query Params nâng cao](#-query-params-nâng-cao)
-7. [Bảo mật & Phân quyền](#-bảo-mật--phân-quyền)
-8. [Kiểm thử (Testing)](#-kiểm-thử-testing)
+
+1. Công nghệ sử dụng
+2. Cấu trúc Project
+3. Cài đặt & Khởi chạy
+4. Database & Migration
+5. Hệ thống API
+6. Query Params nâng cao
+7. Bảo mật & Phân quyền
+8. Kiểm thử
 
 ---
 
 ## 🛠 Công nghệ sử dụng
-- **Backend:** Node.js, TypeScript, Express.js
-- **Database:** PostgreSQL
-- **Query Builder:** Knex.js (Quản lý Migration & Query)
-- **Validation:** Zod (Schema validation)
-- **Security:** JWT (Authentication), bcrypt (Password hashing)
-- **DevOps:** Docker & Docker Compose
-- **Testing:** Vitest & Supertest
+
+* **Backend:** Node.js, TypeScript, Express.js
+* **Database:** PostgreSQL
+* **Query Builder:** Knex.js
+* **Validation:** Zod
+* **Authentication:** JWT
+* **Password Hashing:** bcrypt
+* **DevOps:** Docker & Docker Compose
+* **Testing:** Vitest + Supertest
 
 ---
 
-## 📂 Cấu trúc Project
----
+## Cấu trúc Project
+
+```
 SMART_API_HUB/
 ├─ src/
-│  ├─ config/           # Cấu hình môi trường & hệ thống
-│  ├─ controllers/      # Xử lý logic cho Auth và Resource
-│  ├─ db/               # Kết nối Knex & Logic Auto-Migration
-│  ├─ middlewares/      # Auth, Error handling, Table Validation
-│  ├─ routes/           # Định nghĩa các tuyến đường API
-│  ├─ tests/            # Bộ mã nguồn kiểm thử (Integration tests)
-│  ├─ types/            # Định nghĩa các TypeScript Interfaces/Types
-│  ├─ utils/            # Các hàm tiện ích dùng chung
-│  ├─ validators/       # Schema validation (Zod)
-│  ├─ app.ts            # Cấu hình Express app
-│  └─ index.ts          # Entry point của hệ thống
-├─ .env                 # Biến môi trường (Local)
-├─ .env.example         # File mẫu cấu hình môi trường
-├─ .gitattributes       # Cấu hình thuộc tính Git
-├─ .gitignore           # Các file/thư mục bỏ qua khi push Git
-├─ docker-compose.yaml  # Container hóa PostgreSQL & App
-├─ Dockerfile           # File cấu hình build image Docker
-├─ nodemon.json         # Cấu hình tự động restart server
-├─ package.json         # Quản lý dependencies và scripts
-├─ README.md            # Tài liệu hướng dẫn dự án
-├─ schema.json          # Định nghĩa cấu trúc bảng Dynamic
-└─ tsconfig.json        # Cấu hình trình biên dịch TypeScript
+│  ├─ config/
+│  ├─ controllers/
+│  ├─ db/
+│  ├─ middlewares/
+│  ├─ routes/
+│  ├─ tests/
+│  ├─ types/
+│  ├─ utils/
+│  ├─ validators/
+│  ├─ app.ts
+│  └─ index.ts
+├─ .env
+├─ .env.example
+├─ docker-compose.yaml
+├─ Dockerfile
+├─ nodemon.json
+├─ package.json
+├─ README.md
+├─ schema.json
+└─ tsconfig.json
+```
 
 ---
 
 ## Cài đặt & Khởi chạy
----
-1. Cấu hình biến môi trường
+
+### 1. Tạo file `.env`
+
+```
 PORT=3000
 
 DB_HOST=localhost
@@ -68,67 +80,127 @@ DB_USER=postgres
 DB_PASSWORD=your_password
 
 JWT_SECRET=your_super_secret_key
+```
 
-2. Triển khai với Docker
-Khởi chạy container PostgreSQL:
+---
+
+### 2. Chạy PostgreSQL bằng Docker
+
+```
 docker-compose up -d
+```
 
-3. Cài đặt và Chạy Server
-- Cài đặt dependencies
+---
+
+### 3. Cài đặt & chạy server
+
+```
 npm install
-
-- Chạy ở chế độ phát triển
 npm run dev
+```
+
+Server chạy tại:
+
+```
+http://localhost:3000
+```
 
 ---
 
 ## Database & Migration
----
-Hệ thống sử dụng cơ chế Auto-Migration giúp đơn giản hóa việc quản lý DB:
-Tự động tạo bảng từ định nghĩa trong schema.json.
-Tự động thêm các cột created_at và updated_at.
-Thiết lập quan hệ khóa ngoại (FK) mặc định giữa users, categories, và products.
+
+Hệ thống sử dụng **Auto-Migration**:
+
+* Đọc từ `schema.json`
+* Tự động tạo bảng nếu chưa tồn tại
+* Tự động thêm:
+
+  * `created_at`
+  * `updated_at`
+* Tự động thiết lập quan hệ (FK)
 
 ---
 
 ## Hệ thống API
----
-Authentication
-Method	Path	Description
-POST	/auth/register	Đăng ký tài khoản (mặc định role: client)
-POST	/auth/login	Đăng nhập và nhận JWT Token
 
-Dynamic CRUD
-Method	Path	        Auth	  Role      Description
-GET	    /:resource	     ❌	     Any    Lấy toàn bộ danh sách
-GET	    /:resource/:id	 ❌	     Any    Lấy chi tiết một bản ghi
-POST	/:resource	     ✅	     Any	Tạo bản ghi mới
-PUT	    /:resource/:id	 ✅	     Any	Cập nhật toàn bộ bản ghi
-PATCH	/:resource/:id	 ✅	     Any	Cập nhật một phần bản ghi
-DELETE	/:resource/:id	 ✅	     Admin  Xóa bản ghi
+### Authentication
+
+| Method | Endpoint       | Description        |
+| ------ | -------------- | ------------------ |
+| POST   | /auth/register | Đăng ký tài khoản  |
+| POST   | /auth/login    | Đăng nhập, trả JWT |
 
 ---
 
-## Query Params nâng cao
+### Dynamic CRUD
+
+| Method | Endpoint       | Auth | Role  | Description    |
+| ------ | -------------- | ---- | ----- | -------------- |
+| GET    | /:resource     | ❌    | Any   | Lấy danh sách  |
+| GET    | /:resource/:id | ❌    | Any   | Lấy chi tiết   |
+| POST   | /:resource     | ✅    | Any   | Tạo mới        |
+| PUT    | /:resource/:id | ✅    | Any   | Update toàn bộ |
+| PATCH  | /:resource/:id | ✅    | Any   | Update 1 phần  |
+| DELETE | /:resource/:id | ✅    | Admin | Xóa            |
+
 ---
-Hệ thống hỗ trợ các tham số truy vấn linh hoạt:
-Chọn trường: _fields=name,price
-Phân trang: _page=1&_limit=10
-Sắp xếp: _sort=id&_order=desc
-Quan hệ: _embed=products hoặc _expand=categories
-Bộ lọc: _like[name]=Lap, _gte[price]=1000, _ne[stock]=0
+
+## 🔍 Query Params nâng cao
+
+| Tính năng  | Ví dụ                   |
+| ---------- | ----------------------- |
+| Fields     | `?_fields=name,price`   |
+| Pagination | `?_page=1&_limit=10`    |
+| Sorting    | `?_sort=id&_order=desc` |
+| Filtering  | `_gte[price]=1000`      |
+| Search     | `?q=iphone`             |
+| Expand     | `?_expand=category`     |
+| Embed      | `?_embed=products`      |
 
 ---
 
 ## Bảo mật & Phân quyền
----
-Xác thực: Sử dụng Header Authorization: Bearer <token>.
-Phân quyền: - Các route thay đổi dữ liệu (POST, PUT, PATCH) yêu cầu người dùng đã đăng nhập.
-Hành động DELETE chỉ dành riêng cho tài khoản có quyền admin.
+
+* Sử dụng JWT:
+
+```
+Authorization: Bearer <token>
+```
+
+* Quy tắc:
+
+  * POST / PUT / PATCH → cần login
+  * DELETE → chỉ admin
 
 ---
 
-## Kiểm thử (Testing)
----
-Dự án sử dụng Vitest và Supertest đặt trong thư mục src/tests.
+## Kiểm thử
+
+Chạy test:
+
+```
 npm run test
+```
+
+* Sử dụng:
+
+  * Vitest
+  * Supertest
+
+* Cover:
+
+  * ✅ Happy path
+  * ❌ 400 / 401 / 403 / 404
+
+---
+
+## Tổng kết
+
+Dự án này giúp:
+
+* Hiểu cách build **Dynamic REST API**
+* Làm chủ **Node.js + TypeScript + PostgreSQL**
+* Áp dụng **Auth + Validation + Testing + Docker**
+* Sẵn sàng cho project thực tế 🚀
+
+---

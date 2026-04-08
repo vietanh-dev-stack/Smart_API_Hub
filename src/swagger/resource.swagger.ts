@@ -1,4 +1,3 @@
-// src/config/swagger/resourceSwaggerDocs.ts
 export const resourceSwaggerDocs = `
 /**
  * @swagger
