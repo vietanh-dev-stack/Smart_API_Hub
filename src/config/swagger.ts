@@ -1,4 +1,6 @@
-import swaggerJsdoc from "swagger-jsdoc"
+import swaggerJsdoc from "swagger-jsdoc";
+import { authSwaggerDocs } from "../swagger/auth.swagger";
+import { resourceSwaggerDocs } from "../swagger/resource.swagger";
 
 export const swaggerOptions = {
   definition: {
@@ -8,21 +10,23 @@ export const swaggerOptions = {
       version: "1.0.0",
       description: "API dynamic CRUD với JWT Auth và Audit Log",
     },
-    servers: [
-      { url: "http://localhost:3000", description: "Local server" }
-    ],
+    servers: [{ url: "http://localhost:3000", description: "Local server" }],
     components: {
       securitySchemes: {
         bearerAuth: {
           type: "http",
           scheme: "bearer",
           bearerFormat: "JWT",
-        }
-      }
+        },
+      },
     },
     security: [{ bearerAuth: [] }],
   },
-  apis: ["./src/routes/*.ts", "./src/controllers/*.ts"], // path tới file có comment Swagger
+  apis: [
+    "./src/routes/*.ts", 
+    // file Swagger external
+    "./src/swagger/*.ts"
+  ],
 };
 
 export const swaggerSpec = swaggerJsdoc(swaggerOptions);
