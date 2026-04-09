@@ -10,7 +10,11 @@ export const swaggerOptions = {
       version: "1.0.0",
       description: "API dynamic CRUD với JWT Auth và Audit Log",
     },
-    servers: [{ url: "http://localhost:3000", description: "Local server" }],
+    servers: [
+      { 
+        url: "/" 
+      }
+    ],
     components: {
       securitySchemes: {
         bearerAuth: {
